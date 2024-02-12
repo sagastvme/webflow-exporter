@@ -1,6 +1,6 @@
 const { getHtml,modifyScripts ,createCss,removeIframes} = require('./lib/extract');
 const { makeFolders} = require('./lib/directory');
-const fatherUrl = "https://eduardos-fabulous-site-57049f.webflow.io/";
+const fatherUrl = "https://eduardos-fabulous-site-68cb8f.webflow.io/";
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
@@ -11,38 +11,38 @@ let linksUsed=[];
 (async () => {
     try {
         const jsPath = './scripts';
-        const cssPath = './css'
-        const paths = [jsPath, cssPath];
+        const cssPath = './css';
+        const htmlPath = './html'
+        const paths = [jsPath, cssPath, htmlPath];
         const urls = [fatherUrl];
         makeFolders(paths);
-        await processWebsites(urls, jsPath, cssPath)
+        await processWebsites(urls, jsPath, cssPath, htmlPath)
 
     } catch (error) {
         console.error('Error:', error);
     }
 })();
 
-async function processWebsites(urls, jsPath, cssPath) {
+async function processWebsites(urls, jsPath, cssPath,htmlPath) {
     const extension = '.html';
     for (let i = 0; i < urls.length; i++) {
         const $ = await getHtml(urls[i]);
-        await modifyScripts($, jsPath);
+        await modifyScripts($, jsPath, htmlPath);
         await createCss($, cssPath);
         await removeIframes($);
         const modifiedHtml = $.html(); // Get the modified HTML content
-        const newName =  uuidv4() + extension;
+        const newName = htmlPath + '/'+ uuidv4() + extension;
 
         fs.writeFile(newName, modifiedHtml, (err) => {
             if (err) {
                 console.error('Error writing file:', err);
             } else {
-                // console.log('File written successfully!');
+                console.log('File written successfully!');
             }
         });
         const linksFound = findLinks($, urls[i]); // Pass the individual URL to findLinks
         // Push the individual URL into linksUsed
-       console.log(linksUsed.length)
-        await processWebsites(linksFound, jsPath, cssPath,); // Process the found links recursively
+        await processWebsites(linksFound, jsPath, cssPath,htmlPath); // Process the found links recursively
     }
 }
 
