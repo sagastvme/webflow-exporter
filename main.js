@@ -7,7 +7,8 @@ const {
 } = require("./lib/extract");
 const path = require('path');
 const { makeFolders } = require("./lib/directory");
-const fatherUrl = "https://eduardos-fabulous-site-68cb8f.webflow.io/";
+
+const fatherUrl = "http://eduardos-fabulous-site-57049f.webflow.io/";
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 const archiver = require('archiver')
@@ -110,7 +111,6 @@ async function zipFolders(folderPaths, zipFileName) {
         archive.finalize();
 
         output.on('close', () => {
-            console.log(`Zip file '${zipFileName}' created successfully!`);
             resolve(); // Resolve the promise when the zip creation is successful
         });
 
@@ -125,7 +125,6 @@ async function zipFolders(folderPaths, zipFileName) {
 async function removeFolders(list) {
     for (let i = 0; i < list.length; i++) {
         const path = list[i];
-        console.log(`Emptying directory ${path}`);
         try {
             fs.rmSync(path, { recursive: true, force: true });
         } catch (err) {
