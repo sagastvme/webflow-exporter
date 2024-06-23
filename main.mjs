@@ -1,18 +1,20 @@
-const {
+import {
   getHtml,
   modifyScripts,
   createCss,
   removeIframes,
   modifyImages,
-} = require("./lib/extract");
-const path = require('path');
-const { makeFolders } = require("./lib/directory");
+} from "./lib/extract.mjs";
+import path from 'path';
+import {makeFolders} from './lib/directory.mjs'
+
+
 
 const fatherUrl = "http://eduardos-fabulous-site-57049f.webflow.io/";
-const fs = require("fs");
-const { v4: uuidv4 } = require("uuid");
-const archiver = require('archiver')
 
+import fs from 'fs'
+import {v4 as uuid} from 'uuid'
+import archiver from 'archiver'
 
 let linksUsed = [];
 let imagesUsed = {};
@@ -47,7 +49,7 @@ async function processWebsites(urls, jsPath, cssPath, htmlPath, imagesPath) {
     await modifyImages($, imagesPath, imagesUsed);
     await removeIframes($);
     const modifiedHtml = $.html(); // Get the modified HTML content
-    const newName = htmlPath + "/" + uuidv4() + extension;
+    const newName = htmlPath + "/" + uuid() + extension;
 
     fs.writeFile(newName, modifiedHtml, (err) => {
       if (err) {
