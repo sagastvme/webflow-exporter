@@ -1,32 +1,36 @@
 # 🌐 Webflow Website Downloader
 
-This tool allows you to download a Webflow website, including all CSS, HTML, JS, and images.
+## 🤔 What is the Project?
 
-## Prerequisites
+A Node.js tool for downloading Webflow websites locally.
+Captures HTML, CSS, JavaScript, and images for offline use.
 
-- **Node.js**: Ensure you have Node.js installed. You can download it [here](https://nodejs.org/en/download/package-manager).
+## ❓ Why Does it Exist?
 
-## How to Use This Tool
+Creates backups, enables offline development, and facilitates website migration.
+Allows for local performance analysis and testing.
 
-1. **Install Dependencies**:
-    - Open the command line/terminal in the project's root folder.
-    - Run the following command to install all the dependencies:
-      ```sh
-      npm install
-      ```
+## 🛠️ Tools Used and Why
 
-2. **Configure the URL**:
-    - Open the file `main.mjs`.
-    - Locate the variable named `fatherUrl`.
-    - Replace the placeholder value with the URL of your Webflow website.
-    - Save the changes to the `main.mjs` file.
+Node.js for asynchronous operations.
+Cheerio for HTML parsing, Archiver for ZIP creation, UUID for unique filenames.
+fs-extra for file operations, node-fetch for downloading resources.
 
-3. **Run the Script**:
-    - Open the command line/terminal in the project's root folder.
-    - Execute the following command to start the download process:
-      ```sh
-      node main.mjs
-      ```
+## 💾 How to Install
 
-4. **Retrieve the Downloaded Website**:
-    - After a few seconds, you will find a ZIP file in the project's root folder. This ZIP file contains your downloaded website with all the CSS, HTML, JS, and images.
+1. Clone the repository.
+2. Navigate to the project directory.
+3. Run `npm install` to install dependencies.
+
+## 🚀 How to Use It
+
+1. Set the `fatherUrl` in `main.mjs` to your Webflow site's URL.
+2. Run `node main.mjs`.
+3. Find the ZIP file with your downloaded website in the project directory.
+
+## 🤝 How to Contribute
+
+Report issues and submit pull requests on GitHub.
+Suggest improvements and help with code review or documentation.
+
+## ⚠️ Remember to respect website terms of service when using this tool.
