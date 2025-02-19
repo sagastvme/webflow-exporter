@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Webflow Exporter</title>
+</head>
+<body>
+  <h1>Webflow Exporter (Educational Reasons)</h1>
+
+  <form id="exportForm">
+    <label for="page">Webflow page to export:</label>
+    <input
+      type="url"
+      value="http://eduardos-fabulous-site-57049f.webflow.io/"
+      name="page"
+      id="page"
+      required
+    />
+    <button type="submit">Export my page</button>
+  </form>
+
+  <script>
+    // 1) Listen to form submission
+    document.querySelector("#exportForm").addEventListener("submit", async (e) => {
+      e.preventDefault(); // Stop normal form POST
+      const pageUrl = document.querySelector("#page").value.trim()
+      
+      
+      ;
+      if (!pageUrl) return;
+
+      try {
+        // 2) Send a POST request to /export-webflow, passing { page: pageUrl } as JSON
+        const response = await fetch("/export-webflow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ page: pageUrl }),
+        });
+
+        if (!response.ok) {
+          // Handle error if server responds with an error code
+          alert("Error: Unable to export page.");
+          return;
+        }
+
+        // 3) Get the JSON, which contains { zipFile: base64String }
+        const data = await response.json();
+        const base64Zip = data.zipFile;
+
+        if (!base64Zip) {
+          alert("No ZIP file returned from the server.");
+          return;
+        }
+
+        // 4) Convert the base64 to a Blob
+        const blob = b64toBlob(base64Zip, "application/zip");
+        // 5) Create a download URL
+        const blobUrl = URL.createObjectURL(blob);
+
+        // 6) Programmatically create and click an <a> to download
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        let zipName = pageUrl.replace(/^https?:\/\//, "")
+        .replace(/[^\w\d_\-\.]/g, "_");
+        link.download = `${zipName}.zip`; // filename
+        document.body.appendChild(link);
+        link.click();
+
+        // 7) Clean up
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+
+      } catch (err) {
+        console.error("Error exporting page:", err);
+        alert("An error occurred. Check console for details.");
+      }
+    });
+
+    // Helper function: convert base64 to Blob
+    function b64toBlob(b64Data, contentType = "", sliceSize = 512) {
+      const byteCharacters = atob(b64Data);
+      const byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+        const slice = byteCharacters.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+      }
+
+      return new Blob(byteArrays, { type: contentType });
+    }
+  </script>
+</body>
+</html>
