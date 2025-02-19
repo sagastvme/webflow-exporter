@@ -38,7 +38,7 @@ app.post("/export-webflow", async (req, res) => {
     res.json({ zipFile: base64Zip });
   } catch (error) {
     console.error("Export error:", error);
-    return res.status(500).json({ error: "Error creating zip" });
+    return res.status(500).json({ error: "Error creating zip file" });
   }
 });
 
