@@ -5,25 +5,25 @@ import {
   removeIframes,
   modifyImages,
 } from "./lib/extract.mjs";
-import path from 'path';
-import {makeFolders} from './lib/directory.mjs'
-
-
+import path from "path";
+import { makeFolders } from "./lib/directory.mjs";
+import fs from "fs";
+import { v4 as uuid } from "uuid";
+import archiver from "archiver";
+import crypto from "crypto";
 
 const fatherUrl = "http://eduardos-fabulous-site-57049f.webflow.io/";
 
-import fs from 'fs'
-import {v4 as uuid} from 'uuid'
-import archiver from 'archiver'
-
 let linksUsed = [];
 let imagesUsed = {};
+// Set to store hashes of HTML contents already written
+const htmlHashes = new Set();
 
 (async () => {
   try {
-let tmpName = fatherUrl.replace('https://' ,'').replace('http://', '');
-const last = tmpName.indexOf('.webflow');
- tmpName = tmpName.substring(0, last) + '.zip';
+    let tmpName = fatherUrl.replace("https://", "").replace("http://", "");
+    const last = tmpName.indexOf(".webflow");
+    tmpName = tmpName.substring(0, last) + ".zip";
 
     const jsPath = "./scripts";
     const cssPath = "./css";
@@ -33,8 +33,8 @@ const last = tmpName.indexOf('.webflow');
     const urls = [fatherUrl];
     makeFolders(paths);
     await processWebsites(urls, jsPath, cssPath, htmlPath, imagesPath);
-   await zipFolders(paths, tmpName);
-    await removeFolders(paths)
+    await zipFolders(paths, tmpName);
+    await removeFolders(paths);
   } catch (error) {
     console.error("Error:", error);
   }
@@ -49,15 +49,26 @@ async function processWebsites(urls, jsPath, cssPath, htmlPath, imagesPath) {
     await modifyImages($, imagesPath, imagesUsed);
     await removeIframes($);
     const modifiedHtml = $.html(); // Get the modified HTML content
-    const newName = htmlPath + "/" + uuid() + extension;
 
-    fs.writeFile(newName, modifiedHtml, (err) => {
-      if (err) {
-        console.error("Error writing file:", err);
-      } else {
-        // console.log('File written successfully!');
-      }
-    });
+    // Create a SHA-256 hash of the HTML content
+    const hash = crypto.createHash("sha256").update(modifiedHtml).digest("hex");
+
+    // Check if the hash already exists
+    if (htmlHashes.has(hash)) {
+      console.log(`Duplicate HTML found for URL ${urls[i]}, skipping file write.`);
+    } else {
+      htmlHashes.add(hash);
+      const newName = path.join(htmlPath, uuid() + extension);
+      fs.writeFile(newName, modifiedHtml, (err) => {
+        if (err) {
+          console.error("Error writing file:", err);
+        } else {
+          // Uncomment the next line if you want confirmation on file creation.
+          // console.log(`File ${newName} written successfully!`);
+        }
+      });
+    }
+
     const linksFound = findLinks($, urls[i]); // Pass the individual URL to findLinks
     await processWebsites(linksFound, jsPath, cssPath, htmlPath, imagesPath); // Process the found links recursively
   }
@@ -93,54 +104,43 @@ function findLinks($, url) {
 }
 
 async function zipFolders(folderPaths, zipFileName) {
-    return new Promise((resolve, reject) => {
-        const output = fs.createWriteStream(zipFileName);
-        const archive = archiver('zip', {
-            zlib: { level: 9 },
-        });
-
-        archive.pipe(output);
-
-        folderPaths.forEach(folderPath => {
-            if (fs.existsSync(folderPath)) {
-                const folderName = path.basename(folderPath); // Get the base folder name
-                archive.directory(folderPath, folderName); // Add the folder to the archive with its original name
-            } else {
-                console.error(`Folder '${folderPath}' does not exist.`);
-            }
-        });
-
-        archive.finalize();
-
-        output.on('close', () => {
-            resolve(); // Resolve the promise when the zip creation is successful
-        });
-
-        archive.on('error', err => {
-            console.error('Error creating zip file:', err);
-            reject(err); // Reject the promise if there's an error
-        });
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(zipFileName);
+    const archive = archiver("zip", {
+      zlib: { level: 9 },
     });
+
+    archive.pipe(output);
+
+    folderPaths.forEach((folderPath) => {
+      if (fs.existsSync(folderPath)) {
+        const folderName = path.basename(folderPath); // Get the base folder name
+        archive.directory(folderPath, folderName); // Add the folder to the archive with its original name
+      } else {
+        console.error(`Folder '${folderPath}' does not exist.`);
+      }
+    });
+
+    archive.finalize();
+
+    output.on("close", () => {
+      resolve(); // Resolve the promise when the zip creation is successful
+    });
+
+    archive.on("error", (err) => {
+      console.error("Error creating zip file:", err);
+      reject(err); // Reject the promise if there's an error
+    });
+  });
 }
 
-
 async function removeFolders(list) {
-    for (let i = 0; i < list.length; i++) {
-        const path = list[i];
-        try {
-            fs.rmSync(path, { recursive: true, force: true });
-        } catch (err) {
-            console.error(`Error emptying directory ${path}: ${err.message}`);
-        }
+  for (let i = 0; i < list.length; i++) {
+    const folderPath = list[i];
+    try {
+      fs.rmSync(folderPath, { recursive: true, force: true });
+    } catch (err) {
+      console.error(`Error emptying directory ${folderPath}: ${err.message}`);
     }
-    
-    // for (let i = 0; i < list.length; i++) {
-    //     const path = list[i];
-    //     console.log(`Deleting directory ${path}`);
-    //     try {
-    //         await fsExtra.remove(path); // Delete the directory
-    //     } catch (err) {
-    //         console.error(`Error deleting directory ${path}: ${err.message}`);
-    //     }
-    // }
+  }
 }
