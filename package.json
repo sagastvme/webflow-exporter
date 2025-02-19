@@ -1,9 +1,13 @@
 {
+  "type": "module",
   "dependencies": {
     "archiver": "^7.0.1",
+    "bull": "^4.16.5",
     "cheerio": "^1.0.0-rc.12",
+    "express": "^4.21.2",
     "fs-extra": "^11.2.0",
     "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.9",
     "uuid": "^10.0.0"
   }
 }
