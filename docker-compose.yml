@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    # Build using the Dockerfile in the current directory.
+    build:
+      context: .
+      target: dev   # Change to 'prod' for production builds.
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
