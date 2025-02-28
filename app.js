@@ -23,16 +23,21 @@ app.get("/", (req, res) => {
 // POST /export-webflow
 app.post("/export-webflow", async (req, res) => {
   try {
-    const { page } = req.body; // read from JSON body
+    const { page } = req.body; // Read from JSON body
     if (!page) {
       return res.status(400).json({ error: "Missing parameters" });
     }
+
+    const start = performance.now(); // Start time
 
     // 1) Call our function to get the ZIP as a buffer
     const zipBuffer = await process_website(page);
 
     // 2) Encode the buffer as base64
     const base64Zip = zipBuffer.toString("base64");
+
+    const end = performance.now(); // End time
+    console.log(`Time taken: ${(end - start).toFixed(2)} ms`);
 
     // 3) Return JSON with the base64 content
     res.json({ zipFile: base64Zip });
@@ -41,6 +46,7 @@ app.post("/export-webflow", async (req, res) => {
     return res.status(500).json({ error: "Error creating zip file" });
   }
 });
+
 
 app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);

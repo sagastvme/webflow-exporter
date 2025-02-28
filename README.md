@@ -34,3 +34,33 @@ Report issues and submit pull requests on GitHub.
 Suggest improvements and help with code review or documentation.
 
 ## ⚠️ Remember to respect website terms of service when using this tool.
+
+
+
+
+
+
+# Benchmarks
+
+### Website Processed:
+[Eduardo's Fabulous Site](https://eduardos-fabulous-site-68cb8f.webflow.io/)
+
+### Execution Times:
+- **Node.js:** ⏱️ 137,353.58 ms  
+- **Bun:** ⏱️ 45,755.32 ms  
+
+### Performance Comparison:
+🚀 **Bun is** _1 minute and 30 seconds faster_ than Node.js!
+
+# Benchmarks
+
+### Website Processed:
+[Eduardo's Fabulous Site](http://eduardos-fabulous-site-57049f.webflow.io/)
+
+### Execution Times:
+- **Node.js:** ⏱️ 84388.82 ms
+- **Bun:** ⏱️ 30451.21 ms
+
+### Performance Comparison:
+🚀 **Bun is** _50 seconds faster_ than Node.js!
+
