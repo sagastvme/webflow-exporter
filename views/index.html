@@ -1,99 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Webflow Exporter</title>
-</head>
-<body>
-  <h1>Webflow Exporter (Educational Reasons)</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webflow Exporter</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', sans-serif;
+      }
 
-  <form id="exportForm">
-    <label for="page">Webflow page to export:</label>
-    <input
-      type="url"
-      value="http://eduardos-fabulous-site-57049f.webflow.io/"
-      name="page"
-      id="page"
-      required
-    />
-    <button type="submit">Export my page</button>
-  </form>
+      body {
+        background: #f5f5f5;
+        color: #2d2d2d;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
 
-  <script>
-    // 1) Listen to form submission
-    document.querySelector("#exportForm").addEventListener("submit", async (e) => {
-      e.preventDefault(); // Stop normal form POST
-      const pageUrl = document.querySelector("#page").value.trim()
-      
-      
-      ;
-      if (!pageUrl) return;
+      h1 {
+        margin-bottom: 2rem;
+        text-align: center;
+        padding: 0 1rem;
+        color: #2d2d2d;
+        font-size: 2rem;
+        font-weight: 600;
+      }
 
-      try {
-        // 2) Send a POST request to /export-webflow, passing { page: pageUrl } as JSON
-        const response = await fetch("/export-webflow", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ page: pageUrl }),
+      #exportForm {
+        background: white;
+        padding: 2rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 600px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #2d2d2d;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.8rem;
+        margin-bottom: 1.5rem;
+        background: white;
+        border: 1px solid #e0e0e0;
+        color: #2d2d2d;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #4353ff;
+        box-shadow: 0 0 0 3px rgba(67, 83, 255, 0.1);
+      }
+
+      button {
+        width: 100%;
+        padding: 1rem;
+        background: #4353ff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        background: #3747e6;
+        box-shadow: 0 4px 12px rgba(67, 83, 255, 0.2);
+      }
+
+      details {
+        margin-top: 1.5rem;
+        width: 90%;
+        max-width: 600px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 600;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: #4353ff;
+      }
+
+      #events {
+        list-style: none;
+        padding: 1rem;
+        max-height: 200px;
+        overflow-y: auto;
+        position: relative;
+        color: #2d2d2d;
+      }
+
+      #events::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      #events::-webkit-scrollbar-track {
+        background: #f5f5f5;
+      }
+
+      #events::-webkit-scrollbar-thumb {
+        background: #4353ff;
+        border-radius: 3px;
+      }
+
+      #events::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: linear-gradient(to bottom, white 0%, transparent 100%);
+        pointer-events: none;
+      }
+
+      .spinner {
+        display: none;
+        width: 24px;
+        height: 24px;
+        border: 3px solid #4353ff33;
+        border-top: 3px solid #4353ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @media (max-width: 480px) {
+        #exportForm {
+          padding: 1.5rem;
+        }
+        
+        h1 {
+          font-size: 1.5rem;
+        }
+        
+        summary {
+          padding: 0.75rem;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Webflow Exporter (Educational Reasons)</h1>
+
+    <form id="exportForm">
+      <label for="page">Webflow page to export:</label>
+      <input
+        type="url"
+        value="http://eduardos-fabulous-site-57049f.webflow.io/"
+        name="page"
+        id="page"
+        required
+      />
+      <button id="submit" type="submit">Export my page</button>
+    </form>
+
+    <details id="progressDetails">
+      <summary>
+        Export Progress
+        <div class="spinner" id="spinner"></div>
+      </summary>
+      <ul id="events"></ul>
+    </details>
+
+    <script>
+      // Helper function: Auto-scroll to the bottom of the events list
+      function scrollToBottom() {
+        const eventsList = document.getElementById('events');
+        eventsList.scrollTop = eventsList.scrollHeight;
+      }
+
+      // 1) Listen to form submission
+      document
+        .querySelector('#exportForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault(); // Stop normal form POST
+          document.getElementById('spinner').style.display = 'block';
+          const pageUrl = document.querySelector('#page').value.trim();
+          if (!pageUrl) return;
+
+          // Open the details tag automatically
+          document.getElementById('progressDetails').open = true;
+
+          try {
+            // 2) Send a POST request to /export-webflow, passing { page: pageUrl } as JSON
+            const response = await fetch('/export-webflow', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ page: pageUrl }),
+            });
+
+            if (!response.ok) {
+              // Handle error if server responds with an error code
+              alert('Error: Unable to export page.');
+              return;
+            }
+            document.getElementById('submit').disabled = true;
+
+            // 3) Get the JSON, which contains { zipFile: base64String }
+            const data = await response.json();
+            if (document.getElementById('events').innerHTML != '') {
+              document.getElementById('events').innerHTML = '';
+            }
+            const eventSource = new EventSource('/job_status/' + data.jobId);
+
+            // Listen for messages from the server
+            eventSource.onmessage = function (event) {
+              const data = JSON.parse(event.data);
+              const newElement = document.createElement('li');
+
+              if (data.progress) {
+                newElement.textContent = `Progress: ${data.progress}`;
+              } else if (data.status === 'completed') {
+                let zipName = pageUrl
+                  .replace(/^https?:\/\//, '')
+                  .replace(/[^\w\d_\-\.]/g, '_');
+                newElement.textContent =
+                `✅✅✅ Success! Your Webflow export is complete. The ZIP file (${zipName}.zip) has been downloaded automatically. Please check your "Downloads" folder. ✅✅✅`;
+                eventSource.close();
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('submit').disabled = false;
+                // Automatically trigger download
+                const blob = b64toBlob(data.result, 'application/zip');
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = `${zipName}.zip`; // filename
+                link.click();
+                URL.revokeObjectURL(blobUrl);               
+              } else if (data.status === 'failed') {
+                newElement.textContent = `Error: ${data.error}`;
+                eventSource.close();
+              }
+
+              document.getElementById('events').appendChild(newElement);
+              scrollToBottom(); // Scroll to the bottom after adding a new event
+            };
+
+            eventSource.onerror = function (event) {
+              console.log('Error occurred:', event);
+            };
+          } catch (err) {
+            console.error('Error exporting page:', err);
+            alert('An error occurred. Check console for details.');
+          }
         });
 
-        if (!response.ok) {
-          // Handle error if server responds with an error code
-          alert("Error: Unable to export page.");
-          return;
+      // Helper function: convert base64 to Blob
+      function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+        const byteCharacters = atob(b64Data);
+        const byteArrays = [];
+
+        for (
+          let offset = 0;
+          offset < byteCharacters.length;
+          offset += sliceSize
+        ) {
+          const slice = byteCharacters.slice(offset, offset + sliceSize);
+          const byteNumbers = new Array(slice.length);
+          for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          byteArrays.push(byteArray);
         }
 
-        // 3) Get the JSON, which contains { zipFile: base64String }
-        const data = await response.json();
-        const base64Zip = data.zipFile;
-
-        if (!base64Zip) {
-          alert("No ZIP file returned from the server.");
-          return;
-        }
-
-        // 4) Convert the base64 to a Blob
-        const blob = b64toBlob(base64Zip, "application/zip");
-        // 5) Create a download URL
-        const blobUrl = URL.createObjectURL(blob);
-
-        // 6) Programmatically create and click an <a> to download
-        const link = document.createElement("a");
-        link.href = blobUrl;
-        let zipName = pageUrl.replace(/^https?:\/\//, "")
-        .replace(/[^\w\d_\-\.]/g, "_");
-        link.download = `${zipName}.zip`; // filename
-        document.body.appendChild(link);
-        link.click();
-
-        // 7) Clean up
-        link.remove();
-        URL.revokeObjectURL(blobUrl);
-
-      } catch (err) {
-        console.error("Error exporting page:", err);
-        alert("An error occurred. Check console for details.");
+        return new Blob(byteArrays, { type: contentType });
       }
-    });
-
-    // Helper function: convert base64 to Blob
-    function b64toBlob(b64Data, contentType = "", sliceSize = 512) {
-      const byteCharacters = atob(b64Data);
-      const byteArrays = [];
-
-      for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        const slice = byteCharacters.slice(offset, offset + sliceSize);
-        const byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
-      }
-
-      return new Blob(byteArrays, { type: contentType });
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
