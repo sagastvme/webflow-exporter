@@ -1,66 +1,66 @@
-# 🌐 Webflow Website Downloader
 
-## 🤔 What is the Project?
+# Webflow Exporter
 
-A Node.js tool for downloading Webflow websites locally.
-Captures HTML, CSS, JavaScript, and images for offline use.
+**Webflow Exporter** is a tool that exports regular websites—with a special focus on Webflow sites—by removing Webflow’s branding badge. It works with any webpage and packages your site as a zip file containing HTML, CSS, JavaScript, and image assets.
 
-## ❓ Why Does it Exist?
+## How to Open Downloaded Files
 
-Creates backups, enables offline development, and facilitates website migration.
-Allows for local performance analysis and testing.
+When you export your site, you’ll receive a zip file with all the necessary assets. **Note:** Opening HTML files directly from your file system may trigger CORS errors. To view your site as intended, serve the files through a local server:
 
-## 🛠️ Tools Used and Why
+1. **Using Python’s HTTP Server:**
 
-Node.js for asynchronous operations.
-Cheerio for HTML parsing, Archiver for ZIP creation, UUID for unique filenames.
-fs-extra for file operations, node-fetch for downloading resources.
+   Open your terminal, navigate to the directory with your exported files, and run:
 
-## 💾 How to Install
+   ```bash
+   python -m http.server 8080
+   ```
 
-1. Clone the repository.
-2. Navigate to the project directory.
-3. Run `npm install` to install dependencies.
+2. Open your browser and go to [http://localhost:8080](http://localhost:8080).
 
-## 🚀 How to Use It
+## Features
 
-1. Set the `fatherUrl` in `main.mjs` to your Webflow site's URL.
-2. Run `node main.mjs`.
-3. Find the ZIP file with your downloaded website in the project directory.
+- **Webflow-Focused Export:** Specifically tailored to remove the Webflow badge from exported sites.
+- **Universal Compatibility:** Works with any webpage, not just Webflow projects.
+- **Complete Asset Packaging:** Exports a zip file containing HTML, CSS, JavaScript, and image assets.
+- **Real-Time Updates:** Uses a queue system (Bull) to provide real-time status updates during the export process.
+- **Express Server Powered by Bun.js:** Runs a fast, lightweight server for serving your exported files.
 
-## 🤝 How to Contribute
+## Getting Started
 
-Report issues and submit pull requests on GitHub.
-Suggest improvements and help with code review or documentation.
+### Prerequisites
 
-## ⚠️ Remember to respect website terms of service when using this tool.
+- **Docker:** To build and run the containerized version.
+- **Python:** Required only for serving HTML files locally (to bypass CORS issues).
+- **Bun.js:** Integrated into the project for running the Express server (already set up if you are using the Docker image).
 
+### How It Works
 
+1. **Export Process:**  
+   The exporter generates a zip file that includes your HTML, CSS, JavaScript, and image assets.
 
+2. **CORS Issue Notice:**  
+   Opening HTML files directly from your file system might result in CORS errors. For full functionality, serve the files through a local server as detailed above.
 
+## Running the Project
 
+### Using Docker
 
-# Benchmarks
+1. **Build the Image:**
 
-### Website Processed:
-[Eduardo's Fabulous Site](https://eduardos-fabulous-site-68cb8f.webflow.io/)
+   Ensure your Dockerfile uses Bun as your runtime. Then build your image with:
 
-### Execution Times:
-- **Node.js:** ⏱️ 137,353.58 ms  
-- **Bun:** ⏱️ 45,755.32 ms  
+   ```bash
+   docker compose up -d --build
+   ```
 
-### Performance Comparison:
-🚀 **Bun is** _1 minute and 30 seconds faster_ than Node.js!
+### Local Development
 
-# Benchmarks
+For local development or testing without Docker, ensure you have Bun, Node.js, and Python installed. Follow the setup instructions provided in your project’s documentation.
 
-### Website Processed:
-[Eduardo's Fabulous Site](http://eduardos-fabulous-site-57049f.webflow.io/)
+## Technical Details
 
-### Execution Times:
-- **Node.js:** ⏱️ 84388.82 ms
-- **Bun:** ⏱️ 30451.21 ms
+- **Queue Management:**  
+  The project uses [Bull](https://github.com/OptimalBits/bull) to manage job queues, allowing the application to provide real-time updates on the export process.
 
-### Performance Comparison:
-🚀 **Bun is** _50 seconds faster_ than Node.js!
-
+- **Express Server with Bun.js:**  
+  The server is powered by Bun.js, a modern JavaScript runtime, ensuring fast performance and efficient resource usage.
