@@ -4,11 +4,9 @@ services:
   app:
     build:
       context: .
-      target: prod   
+      target: prod   # ✅ Ensures production doesn't use a volume
     ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
+      - "83:3000"
     depends_on:
       - redis
 
