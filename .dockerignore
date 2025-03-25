@@ -13,3 +13,4 @@ helm-charts
 .idea
 coverage*
 img
+node_modules
