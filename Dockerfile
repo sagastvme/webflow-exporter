@@ -5,7 +5,6 @@ RUN bun install
 COPY . .
 
 FROM base AS dev
-# Using Bun’s watch mode for development
 CMD ["bun", "run", "--watch", "app.js"]
 
 FROM base AS prod
