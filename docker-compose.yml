@@ -1,14 +1,36 @@
-version: '3.8'
-
 services:
   app:
+    image: webflow-exporter
     build:
       context: .
-      target: prod   # ✅ Ensures production doesn't use a volume
+      target: prod
     ports:
-      - "83:3000"
+      - "3000:3000"
     depends_on:
       - redis
+    networks:
+      - my_network
+
+  app-dev:
+    image: webflow-exporter
+    build:
+      context: .
+      target: dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+    networks:
+      - my_network
 
   redis:
-    image: redis:7
+    image: redis:alpine
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
