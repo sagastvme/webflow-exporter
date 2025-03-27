@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install
 COPY . .
-CMD ["npx", "nodemon", "--inspect=0.0.0.0", "app.js"]
+CMD ["npx", "nodemon", "--inspect=0.0.0.0", "--legacy-watch",  "app.js"]
 
 FROM oven/bun:latest AS prod
 WORKDIR /app
