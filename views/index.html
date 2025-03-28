@@ -174,15 +174,15 @@
     <h1>Webflow Exporter (Educational Reasons)</h1>
 
     <form id="exportForm">
-      <label for="page">Webflow page to export:</label>
+      <label for="webpage">Webflow webpage to export:</label>
       <input
         type="url"
         value="https://eduardos-fabulous-site-e67fc4.webflow.io/"
-        name="page"
-        id="page"
+        name="webpage"
+        id="webpage"
         required
       />
-      <button id="submit" type="submit">Export my page</button>
+      <button id="submit" type="submit">Export my webpage</button>
     </form>
 
     <details id="progressDetails">
@@ -206,23 +206,23 @@
         .addEventListener('submit', async (e) => {
           e.preventDefault(); // Stop normal form POST
           document.getElementById('spinner').style.display = 'block';
-          const pageUrl = document.querySelector('#page').value.trim();
-          if (!pageUrl) return;
+          const webpageUrl = document.querySelector('#webpage').value.trim();
+          if (!webpageUrl) return;
 
           // Open the details tag automatically
           document.getElementById('progressDetails').open = true;
 
           try {
-            // 2) Send a POST request to /export-webflow, passing { page: pageUrl } as JSON
+            // 2) Send a POST request to /export-webflow, passing { webpage: webpageUrl } as JSON
             const response = await fetch('/export-webflow', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ page: pageUrl }),
+              body: JSON.stringify({ webpage: webpageUrl }),
             });
 
             if (!response.ok) {
               // Handle error if server responds with an error code
-              alert('Error: Unable to export page.');
+              alert('Error: Unable to export webpage.');
               return;
             }
             document.getElementById('submit').disabled = true;
@@ -242,7 +242,7 @@
               if (data.progress) {
                 newElement.textContent = `Progress: ${data.progress}`;
               } else if (data.status === 'completed') {
-                let zipName = pageUrl
+                let zipName = webpageUrl
                   .replace(/^https?:\/\//, '')
                   .replace(/[^\w\d_\-\.]/g, '_');
                 newElement.textContent =
@@ -271,7 +271,7 @@
               console.log('Error occurred:', event);
             };
           } catch (err) {
-            console.error('Error exporting page:', err);
+            console.error('Error exporting webpage:', err);
             alert('An error occurred. Check console for details.');
           }
         });
