@@ -1,0 +1,54 @@
+How to View Your Exported Website
+
+When you export your website, you receive a ZIP file that contains all necessary files: HTML, CSS, JavaScript, and images.
+
+Important:
+Do not open the HTML files directly in your browser (e.g., by double-clicking them). This may cause issues such as broken images, missing styles, or JavaScript errors due to browser security restrictions (CORS).
+
+Instead, run a local server to properly view your site.
+
+Choose the correct server based on your operating system:
+
+Windows
+
+    Double-click server-windows.exe.
+
+    Your browser will open at http://localhost:8080/.
+
+    Inside the "html" folder, you will find your exported pages.
+
+Linux
+
+    Open a terminal in the extracted folder.
+
+    Run the following commands:
+
+chmod +x server-linux
+./server-linux
+
+    Open http://localhost:8080/ in your browser.
+
+macOS
+
+    Open Terminal in the extracted folder.
+
+    Run the following commands:
+
+chmod +x server-macos
+./server-macos
+
+    Open http://localhost:8080/ in your browser.
+
+Folder Structure
+
+exported-site/
+├── server-windows.exe
+├── server-linux
+├── server-macos
+└── html/
+    ├── index.html
+    ├── scripts/
+    ├── styles/
+    └── images/
+
+Always access your pages through the local server using the /html path. This ensures everything functions as intended.
