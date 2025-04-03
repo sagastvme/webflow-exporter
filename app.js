@@ -1,4 +1,4 @@
-import {sseUserUpdate, addJobToQueue} from "./lib/queue.js"
+import {sseUserUpdate, addJobToQueue} from "./lib/queues/processWebsiteQueue.js"
 import app from "./lib/server_settings.js";
 import path from "path";
 import { fileURLToPath } from "url";
