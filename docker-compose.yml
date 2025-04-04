@@ -30,7 +30,6 @@ services:
 
   redis:
     image: redis:alpine
-    command: redis-server --maxmemory 500mb --maxmemory-policy allkeys-lru
     networks:
       - my_network
 
