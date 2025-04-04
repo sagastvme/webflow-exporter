@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Webflow Exporter</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Segoe UI', sans-serif;
+        font-family: "Segoe UI", sans-serif;
       }
 
       body {
@@ -129,7 +129,7 @@
       }
 
       #events::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -150,19 +150,23 @@
       }
 
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
 
       @media (max-width: 480px) {
         #exportForm {
           padding: 1.5rem;
         }
-        
+
         h1 {
           font-size: 1.5rem;
         }
-        
+
         summary {
           padding: 0.75rem;
           font-size: 0.9rem;
@@ -196,88 +200,110 @@
     <script>
       // Helper function: Auto-scroll to the bottom of the events list
       function scrollToBottom() {
-        const eventsList = document.getElementById('events');
+        const eventsList = document.getElementById("events");
         eventsList.scrollTop = eventsList.scrollHeight;
       }
 
       // 1) Listen to form submission
       document
-        .querySelector('#exportForm')
-        .addEventListener('submit', async (e) => {
+        .querySelector("#exportForm")
+        .addEventListener("submit", async (e) => {
           e.preventDefault(); // Stop normal form POST
-          document.getElementById('spinner').style.display = 'block';
-          const webpageUrl = document.querySelector('#webpage').value.trim();
+          document.getElementById("spinner").style.display = "block";
+          const webpageUrl = document.querySelector("#webpage").value.trim();
           if (!webpageUrl) return;
 
           // Open the details tag automatically
-          document.getElementById('progressDetails').open = true;
+          document.getElementById("progressDetails").open = true;
 
           try {
             // 2) Send a POST request to /export-webflow, passing { webpage: webpageUrl } as JSON
-            const response = await fetch('/export-webflow', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+            const response = await fetch("/export-webflow", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ webpage: webpageUrl }),
             });
 
             if (!response.ok) {
               // Handle error if server responds with an error code
-              alert('Error: Unable to export webpage.');
+              alert("Error: Unable to export webpage.");
               return;
             }
-            document.getElementById('submit').disabled = true;
+            document.getElementById("submit").disabled = true;
 
             // 3) Get the JSON, which contains { zipFile: base64String }
             const data = await response.json();
-            if (document.getElementById('events').innerHTML != '') {
-              document.getElementById('events').innerHTML = '';
+            if (document.getElementById("events").innerHTML != "") {
+              document.getElementById("events").innerHTML = "";
             }
-            const eventSource = new EventSource('/job_status/' + data.jobId);
+            const eventSource = new EventSource("/job_status/" + data.jobId);
 
             // Listen for messages from the server
             eventSource.onmessage = function (event) {
               const data = JSON.parse(event.data);
-              const newElement = document.createElement('li');
+              const newElement = document.createElement("li");
 
               if (data.progress) {
                 newElement.textContent = `Progress: ${data.progress}`;
-              } else if (data.status === 'completed') {
-                let zipName = webpageUrl
-                  .replace(/^https?:\/\//, '')
-                  .replace(/[^\w\d_\-\.]/g, '_');
-                newElement.textContent =
-                `✅✅✅ Success! Your Webflow export is complete. The ZIP file (${zipName}.zip) has been downloaded automatically. Please check your "Downloads" folder. ✅✅✅`;
+              } else if (data.status === "completed") {
+                console.log(
+                  "job status completed and the value i got == ",
+                  data.result
+                );
+
                 eventSource.close();
-                document.getElementById('spinner').style.display = 'none';
-                document.getElementById('submit').disabled = false;
-                // Automatically trigger download
-                const blob = b64toBlob(data.result, 'application/zip');
-                const blobUrl = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = blobUrl;
-                link.download = `${zipName}.zip`; // filename
-                link.click();
-                URL.revokeObjectURL(blobUrl);               
-              } else if (data.status === 'failed') {
+                document.getElementById("spinner").style.display = "none";
+                document.getElementById("submit").disabled = false;
+
+                // 🛠 Automatically download the zip file from the server
+                const formData = new FormData();
+                formData.append("zipName", data.result); // data.result already has the zip file name
+                fetch("/get_zip_file", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ zipName: data.result }), // <-- JSON not FormData
+                })
+                  .then(async (response) => {
+                    if (!response.ok) {
+                      throw new Error("Failed to download zip file");
+                    }
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = blobUrl;
+                    link.download = data.result;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                    newElement.textContent = `✅✅✅ Success! Your Webflow export is complete. The ZIP file (${data.result}) is being downloaded automatically. ✅✅✅`;
+                  })
+                  .catch((err) => {
+                    console.error("Error downloading zip:", err);
+                    alert("An error occurred while downloading the ZIP file.");
+                  });
+              } else if (data.status === "failed") {
                 newElement.textContent = `Error: ${data.error}`;
                 eventSource.close();
               }
 
-              document.getElementById('events').appendChild(newElement);
+              document.getElementById("events").appendChild(newElement);
               scrollToBottom(); // Scroll to the bottom after adding a new event
             };
 
             eventSource.onerror = function (event) {
-              console.log('Error occurred:', event);
+              console.log("Error occurred:", event);
             };
           } catch (err) {
-            console.error('Error exporting webpage:', err);
-            alert('An error occurred. Check console for details.');
+            console.error("Error exporting webpage:", err);
+            alert("An error occurred. Check console for details.");
           }
         });
 
       // Helper function: convert base64 to Blob
-      function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+      function b64toBlob(b64Data, contentType = "", sliceSize = 512) {
         const byteCharacters = atob(b64Data);
         const byteArrays = [];
 
